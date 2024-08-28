@@ -1,11 +1,14 @@
 use http::status::StatusCode;
+use httpdate::fmt_http_date;
 use std::{
     collections::HashMap,
     fmt::{format, Debug},
+    hash::Hash,
     io::{Error, Read, Write},
     net::{Shutdown, TcpListener, TcpStream},
+    path::Display,
     str::FromStr,
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 #[derive(Debug, Clone, Copy)]
 enum Method {
@@ -30,60 +33,88 @@ impl FromStr for Method {
     }
 }
 
-struct ResponseBody {
+pub struct ResponseBody {
     content: String,
 }
 
-pub trait IntoResponseBody {
+pub trait IntoResponse {
     fn build_response_body(self) -> ResponseBody;
 }
 
-struct Response<R: IntoResponseBody> {
+pub struct Response {
     code: StatusCode,
-    body: R,
-    headers: Headers,
+    body: String,
+    // headers: Hesaders,
+}
+impl std::fmt::Display for Response {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "HTTP/1.1 {}
+            Date : {}
+            Server : {}
+            Content-Length : {}
+            Content-Type : {}
+
+            {}
+            ",
+            self.code,
+            fmt_http_date(SystemTime::now()),
+            "ServerEdu",
+            self.body.len(),
+            "text/plain",
+            self.body
+        )
+    }
 }
 
-#[derive(Debug)]
-enum HeaderType {
+impl Response {
+    pub fn respond(&self, stream: &mut TcpStream) -> Result<(), std::io::Error> {
+        return write!(stream, "{}", self);
+    }
+    pub fn new(code: StatusCode, body: String) -> Self {
+        // let mut headers_for_now = HashMap::new();
+        // headers_for_now.insert(ResponseHeaderType::Server, "EduServer".into());
+        return Response {
+            code: code,
+            body: body,
+            // headers: Headers(headers_for_now),
+        };
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+enum ResponseHeaderType {
     ContentLength,
     Date,
     ContentType,
     Server,
     ContentEncoding,
 }
+#[derive(Debug)]
+enum RequestHeaderType {
+    Host,
+    Accept,
+    AcceptLanguage,
+    AcceptEncoding,
+}
 
-impl IntoResponseBody for String {
+impl IntoResponse for String {
     fn build_response_body(self) -> ResponseBody {
         return ResponseBody { content: self };
     }
 }
 
 #[derive(Debug)]
-struct Headers(HashMap<HeaderType, String>);
+struct Headers(HashMap<ResponseHeaderType, String>);
 
-fn write_handling(mut stream: TcpStream, payload: impl Debug) -> Result<(), std::io::Error> {
-    let body = format!("{:#?}", payload);
-    let header = format!(
-        "HTTP/1.1 200 OK
-    Date: Mon, 27 Jul 2009 12:28:53 GMT
-    Server: Apache/2.2.14 (Win32)
-    Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT
-    Content-Length: {}
-    Content-Type: text/html
-    Connection: Closed\n\n{}",
-        body.len(),
-        body
-    );
-    println!("{}", header);
-    let _b = stream.write(header.as_bytes())?;
-    stream.shutdown(Shutdown::Both)?;
-    Ok(())
+pub enum ServerState {
+    Connected(ConnectedServer),
+    Disconnected,
 }
 
-enum ServerState {
-    Connected { connection: TcpListener },
-    Disconnected,
+pub struct ConnectedServer {
+    connection: TcpListener,
 }
 
 struct Server {
@@ -111,19 +142,37 @@ impl Default for Server {
 }
 
 impl Server {
-    pub fn bind(adress: &str) -> Result<Self, ServerError> {
+    pub fn bind(adress: &str) -> Result<ServerState, ServerError> {
         let listener = TcpListener::bind(adress).map_err(|err| ServerError::new(err))?;
-        let server = Server {
-            state: ServerState::Connected {
-                connection: listener,
-            },
-        };
+        let server = ServerState::Connected(ConnectedServer {
+            connection: listener,
+        });
         return Ok(server);
     }
 }
 
+impl ConnectedServer {
+    pub fn serve(&self, mut router: Router) -> Result<(), ServerError> {
+        for stream in self.connection.incoming() {
+            let mut st = stream.map_err(|err| ServerError::new(err))?;
+            st.set_read_timeout(Some(Duration::from_secs(1)));
+            let request = Request::new(&mut st).unwrap();
+            let response = match router.route(&request) {
+                Some(handler) => handler(request),
+                None => Response::new(StatusCode::NOT_FOUND, "NOT FOUND".into()),
+            };
+            response
+                .respond(&mut st)
+                .map_err(|err| ServerError::new(err))?;
+            st.shutdown(Shutdown::Write)
+                .map_err(|err| ServerError::new(err))?;
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone)]
-struct Request {
+pub struct Request {
     method: String,
     path: String,
     version: String,
@@ -140,10 +189,29 @@ impl RequestError {
 
 impl Request {
     fn new(stream: &mut TcpStream) -> Result<Self, RequestError> {
-        let request = parse_request_arguments(stream)
-            .map_err(|err| RequestError::new(format!("Error processing headers: {}", err)))?;
+        parse_request_arguments(stream)
+            .map_err(|err| RequestError::new(format!("Error processing headers: {}", err)))
+    }
+}
 
-        todo!()
+// type Handler = Box<dyn FnMut(Request) -> Response>;
+type Handler = fn(Request) -> Response;
+pub struct Router {
+    routes: HashMap<String, Handler>,
+}
+
+impl Router {
+    pub fn route(&mut self, request: &Request) -> Option<&mut Handler> {
+        let path = &request.path;
+        return self.routes.get_mut(path);
+    }
+    pub fn new() -> Self {
+        Router {
+            routes: HashMap::<String, Handler>::new(),
+        }
+    }
+    pub fn handler(&mut self, path: String, route: Handler) {
+        self.routes.insert(path, route);
     }
 }
 
@@ -169,21 +237,7 @@ fn parse_request_arguments(stream: &mut TcpStream) -> Result<Request, std::io::E
     };
     return Ok(request);
 }
-fn parse_request_headers(stream: &mut TcpStream) {
-    todo!()
-}
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let srv = TcpListener::bind("0.0.0.0:3210").unwrap();
-
-    for stream in srv.incoming() {
-        let mut stream = stream?;
-        stream.set_read_timeout(Some(Duration::from_secs(1)))?;
-        let request = Request::new(&mut stream)?;
-        write_handling(stream, request)?;
-    }
-    Ok(())
-}
 fn read_first_line(stream: &mut TcpStream) -> Result<String, std::io::Error> {
     let mut buffer = Vec::with_capacity(4096);
     while let Some(Ok(byte)) = stream.bytes().next() {
@@ -196,4 +250,19 @@ fn read_first_line(stream: &mut TcpStream) -> Result<String, std::io::Error> {
     }
     let error = std::io::Error::new(std::io::ErrorKind::InvalidData, "invalid request data");
     return Err(error);
+}
+
+fn base_handler(request: Request) -> Response {
+    Response::new(StatusCode::OK, "HELLOOOO".into())
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut router = Router::new();
+    router.handler("/".into(), base_handler);
+    let srv = Server::bind("0.0.0.0:3000").unwrap();
+    match srv {
+        ServerState::Connected(server) => server.serve(router).unwrap(),
+        ServerState::Disconnected => (),
+    }
+    Ok(())
 }
