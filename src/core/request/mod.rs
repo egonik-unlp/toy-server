@@ -64,13 +64,14 @@ fn parse_request_arguments(stream: &mut TcpStream) -> Result<Request, std::io::E
 fn read_first_line(stream: &mut TcpStream) -> Result<String, std::io::Error> {
     let mut buffer = Vec::with_capacity(4096);
     while let Some(Ok(byte)) = stream.bytes().next() {
-        if byte.eq(&b'\n') {
+        if byte.eq(&b'\n') | byte.eq(&b'\r') {
             return String::from_utf8(buffer)
                 .map_err(|_| Error::new(std::io::ErrorKind::ConnectionAborted, "incomplete data"));
         } else {
             buffer.push(byte)
         }
     }
+
     let error = std::io::Error::new(std::io::ErrorKind::InvalidData, "invalid request data");
     return Err(error);
 }

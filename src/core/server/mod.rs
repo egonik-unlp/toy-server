@@ -2,9 +2,12 @@ use crate::core::request::Request;
 use crate::core::response::Response;
 use crate::core::router::Router;
 use http::StatusCode;
-use std::io::Error;
+use std::fmt::Debug;
+use std::io::{Error, Read, Write};
 use std::net::TcpListener;
 use std::time::Duration;
+
+use super::router::IntoResponse;
 
 pub enum ServerState {
     Connected(ConnectedServer),
@@ -55,7 +58,10 @@ fn detector(err: Error) -> ServerError {
 }
 
 impl ConnectedServer {
-    pub fn serve(&self, mut router: Router) -> Result<(), ServerError> {
+    pub fn serve<R>(&self, mut router: Router<R>) -> Result<(), ServerError>
+    where
+        R: IntoResponse,
+    {
         println!(
             "Serving requests on port {}",
             self.connection.local_addr().unwrap()
@@ -69,14 +75,14 @@ impl ConnectedServer {
             let response = match Request::new(&mut st) {
                 Err(err) => Response::new(StatusCode::INTERNAL_SERVER_ERROR, err.inner),
                 Ok(req) => match router.route(&req) {
-                    Some(handler) => handler(req),
+                    Some(handler) => handler.0(req).build(),
                     None => Response::new(
                         StatusCode::NOT_FOUND,
                         format!("resource {} not found", req.path),
                     ),
                 },
             };
-
+            st.flush().map_err(|err| detector(err))?;
             response.respond(&mut st).map_err(|err| detector(err))?;
         }
         Ok(())
