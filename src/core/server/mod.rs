@@ -2,9 +2,12 @@ use crate::core::request::Request;
 use crate::core::response::Response;
 use crate::core::router::Router;
 use http::StatusCode;
-use std::io::Error;
+use std::fmt::Debug;
+use std::io::{BufReader, Error, Read, Write};
 use std::net::TcpListener;
 use std::time::Duration;
+
+use super::response::IntoResponse;
 
 pub enum ServerState {
     Connected(ConnectedServer),
@@ -55,7 +58,10 @@ fn detector(err: Error) -> ServerError {
 }
 
 impl ConnectedServer {
-    pub fn serve(&self, mut router: Router) -> Result<(), ServerError> {
+    pub fn serve<R>(&self, mut router: Router<R>) -> Result<(), ServerError>
+    where
+        R: IntoResponse,
+    {
         println!(
             "Serving requests on port {}",
             self.connection.local_addr().unwrap()
@@ -64,20 +70,24 @@ impl ConnectedServer {
 
         for stream in self.connection.incoming() {
             let mut st = stream.map_err(|err| ServerError::new(err))?;
-            st.set_read_timeout(Some(Duration::from_secs(1)))
+            st.set_read_timeout(Some(Duration::from_millis(500)))
                 .map_err(|err| ServerError::new(err))?;
-            let response = match Request::new(&mut st) {
+            let mut buffered_stream = BufReader::new(st);
+            let response = match Request::new(&mut buffered_stream) {
                 Err(err) => Response::new(StatusCode::INTERNAL_SERVER_ERROR, err.inner),
                 Ok(req) => match router.route(&req) {
-                    Some(handler) => handler(req),
+                    Some(handler) => {
+                        println!("request: {:?}\nhandler:{:?}\n", req, handler);
+                        handler.0(req).build()
+                    },
                     None => Response::new(
                         StatusCode::NOT_FOUND,
                         format!("resource {} not found", req.path),
                     ),
                 },
             };
-
-            response.respond(&mut st).map_err(|err| detector(err))?;
+            println!("{:?}", response);
+            response.respond(buffered_stream.get_mut()).map_err(|err| detector(err))?;
         }
         Ok(())
     }
