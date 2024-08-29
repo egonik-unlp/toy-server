@@ -39,6 +39,9 @@ impl RequestError {
 impl Request {
     pub(crate) fn new(stream:&mut BufReader<TcpStream>) -> Result<Self, RequestError> {
        let (method, path, version) = parse_request_arguments(stream).map_err(|err| RequestError::new(format!("Error processing headers: {}", err)))?;
+       let mut buf_remainig = Vec::with_capacity(4096);
+       stream.read(&mut buf_remainig).unwrap();
+       println!("{}", String::from_utf8(buf_remainig).unwrap());
        let headers = parse_headers(stream).map_err(|err| RequestError::new(format!("Error processing headers: {:?}", err)))?;
        return Ok( Request { method: method, path: path, version: version, headers: headers })
 
@@ -52,10 +55,9 @@ fn parse_headers(stream: &mut BufReader<TcpStream>) -> Result<Headers, RequestEr
     loop {
         let line = read_first_line(stream).map_err(|err| RequestError::new(format!("Error parseando headers: {}",err )))?;
         if line.len().eq(&0) {
-            println!("ENtre");
-             break;}
-             println!("aca tambien estuve");
-        let mut parts = line.split(":");
+             break;
+            }
+        let mut parts = line.split(": ");
         let header_name = parts.next().ok_or_else(|| RequestError::new("Error parseando nombre de header".into()))?;
         let content = parts.next().ok_or_else(|| RequestError::new("Error parseando valor de header".into()))?;
         let slot_for_value = headers
@@ -90,7 +92,10 @@ fn parse_request_arguments(stream: &mut BufReader<TcpStream>) -> Result<(String,
 fn read_first_line(stream: &mut BufReader<TcpStream>) -> Result<String, std::io::Error> {
     let mut buffer = Vec::with_capacity(4096);
     while let Some(Ok(byte)) = stream.bytes().next() {
-        if byte.eq(&b'\n') | byte.eq(&b'\r') {
+        if byte.eq(&b'\n') {
+            if buffer.ends_with(b"\r") {
+                buffer.pop();
+            }
             return String::from_utf8(buffer)
                 .map_err(|_| Error::new(std::io::ErrorKind::ConnectionAborted, "incomplete data"));
         } else {
