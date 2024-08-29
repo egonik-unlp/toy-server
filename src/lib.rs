@@ -1,10 +1,10 @@
-use core::router::IntoResponse;
+// use core::response::IntoResponse;
 
 use http::status::StatusCode;
 mod core;
 pub use crate::core::{
     request::Request,
-    response::Response,
+    response::{Response, IntoResponse},
     router::{Handler, Router},
     server::{Server, ServerError, ServerState},
 };

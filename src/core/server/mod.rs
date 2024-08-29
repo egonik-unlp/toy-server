@@ -3,11 +3,11 @@ use crate::core::response::Response;
 use crate::core::router::Router;
 use http::StatusCode;
 use std::fmt::Debug;
-use std::io::{Error, Read, Write};
+use std::io::{BufReader, Error, Read, Write};
 use std::net::TcpListener;
 use std::time::Duration;
 
-use super::router::IntoResponse;
+use super::response::IntoResponse;
 
 pub enum ServerState {
     Connected(ConnectedServer),
@@ -72,19 +72,22 @@ impl ConnectedServer {
             let mut st = stream.map_err(|err| ServerError::new(err))?;
             st.set_read_timeout(Some(Duration::from_millis(500)))
                 .map_err(|err| ServerError::new(err))?;
-            let response = match Request::new(&mut st) {
+            let mut buffered_stream = BufReader::new(st);
+            let response = match Request::new(&mut buffered_stream) {
                 Err(err) => Response::new(StatusCode::INTERNAL_SERVER_ERROR, err.inner),
                 Ok(req) => match router.route(&req) {
-                    Some(handler) => handler.0(req).build(),
+                    Some(handler) => {
+                        println!("request: {:?}\nhandler:{:?}\n", req, handler);
+                        handler.0(req).build()
+                    },
                     None => Response::new(
                         StatusCode::NOT_FOUND,
                         format!("resource {} not found", req.path),
                     ),
                 },
             };
-            st.flush().map_err(|err| detector(err))?;
             println!("{:?}", response);
-            response.respond(&mut st).map_err(|err| detector(err))?;
+            response.respond(buffered_stream.get_mut()).map_err(|err| detector(err))?;
         }
         Ok(())
     }

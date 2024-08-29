@@ -1,19 +1,11 @@
 use http::StatusCode;
 
 use crate::core::request::Request;
-use crate::core::response::Response;
+use crate::core::response::IntoResponse;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-pub trait IntoResponse: Debug {
-    fn build(&self) -> Response;
-}
 
-impl IntoResponse for String {
-    fn build(&self) -> Response {
-        Response::new(StatusCode::OK, self.into())
-    }
-}
 // type Handler<R: ToString + Sized + 'static> = fn(Request) -> R;
 pub struct Router<R>
 where
