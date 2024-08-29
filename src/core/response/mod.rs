@@ -7,7 +7,7 @@ use std::time::SystemTime;
 pub struct ResponseBody {
     content: String,
 }
-
+#[derive(Debug)]
 pub struct Response {
     code: StatusCode,
     body: String,
