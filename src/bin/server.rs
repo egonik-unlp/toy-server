@@ -13,6 +13,9 @@ impl Into<ResponseBody> for OuterHashmap {
     }
 }
 
+
+
+
 fn some_kinda_handler(req: &Request) -> OuterHashmap {
     let mut hm = HashMap::new();
     hm.insert("hola".to_owned(), "hola".to_owned());
@@ -22,9 +25,9 @@ fn some_kinda_handler(req: &Request) -> OuterHashmap {
 
 fn main() -> Result<(), ServerError> {
     let router = Router::new()
-        // .handler("/".into(), get(base_handler))
-        .handler("/jsoncito".into(),  some_kinda_handler);
-    // .handler("/pepa".into(), Handler(other_handler));
+        .handler("/".into(), base_handler)
+        .handler("/jsoncito".into(),  some_kinda_handler)
+    .handler("/pepa".into(), other_handler);
     let srv = Server::bind("0.0.0.0:3000")?;
     if let ServerState::Connected(server) = srv {
         server.serve(router)?

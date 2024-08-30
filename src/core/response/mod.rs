@@ -25,7 +25,7 @@ impl std::fmt::Display for Response {
             fmt_http_date(SystemTime::now()),
             "ServerEdu",
             self.body.content.len(),
-            "application/json",
+            "text/plain",
             self.body.content
         )
     }

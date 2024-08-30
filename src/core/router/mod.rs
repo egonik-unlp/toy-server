@@ -39,7 +39,11 @@ F: Fn(&Request) -> R
     }
 }
 
-
+impl Into<ResponseBody> for String {
+    fn into(self) -> ResponseBody {
+        return ResponseBody {content : self };
+    }
+}
 
 
 impl Router {

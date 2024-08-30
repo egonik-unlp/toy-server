@@ -9,12 +9,12 @@ pub use crate::core::{
     server::{Server, ServerError, ServerState},
 };
 
-pub fn base_handler(request: Request) -> String {
+pub fn base_handler(_request: &Request) -> String {
     // Response::new(StatusCode::OK, format!("{:#?}", request))
     return "HOLA".into();
 }
 
-pub fn other_handler(_request: Request) -> Response {
+pub fn other_handler(_request: &Request) -> String {
     let rsp = Response::new(StatusCode::OK, "HELLOOOO".into());
-    Response::new(StatusCode::OK, format!("{}", rsp))
+    return format!("{}", rsp);
 }
