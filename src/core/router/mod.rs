@@ -1,11 +1,10 @@
-use http::StatusCode;
+use http::{request, StatusCode};
 
 use crate::core::request::Request;
-use crate::core::response::IntoResponse;
+use crate::Response;
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use super::request::RequestError;
 use super::response::ResponseBody;
 
 // type Handler<R: ToString + Sized + 'static> = fn(Request) -> R;
@@ -32,7 +31,8 @@ pub trait Handler {
 
 impl<F, R> Handler for F
 where
-    R: IntoResponse,
+    R: Into<ResponseBody>,
+    F: Fn(&Request) -> R,
 {
     fn handle(&self, request: &Request) -> ResponseBody {
         let resp_body = self(&request);
@@ -47,7 +47,7 @@ impl Into<ResponseBody> for String {
 }
 
 impl Router {
-    pub(crate) fn route(&mut self, request: &Request) -> Result<&mut Box<dyn Handler>, RequestError> {
+    pub(crate) fn route(&mut self, request: &Request) -> Option<&mut Box<dyn Handler>> {
         let path = &request.path;
         if path.contains("<") {
             
@@ -57,11 +57,11 @@ impl Router {
     }
     pub fn new() -> Self {
         Router {
-            routes: HashMap::<String, Handler<R>>::new(),
+            routes: HashMap::<String, Box<dyn Handler>>::new(),
         }
     }
-    pub fn handler(mut self, path: String, route: Handler<R>) -> Self {
-        self.routes.insert(path, route);
+    pub fn handler(mut self, path: String, route: impl Handler + 'static) -> Self {
+        self.routes.insert(path, Box::new(route));
         return self;
     }
 }
