@@ -7,7 +7,6 @@ use std::io::{BufReader, Error, Read, Write};
 use std::net::TcpListener;
 use std::time::Duration;
 
-use super::response::IntoResponse;
 
 pub enum ServerState {
     Connected(ConnectedServer),
@@ -58,15 +57,12 @@ fn detector(err: Error) -> ServerError {
 }
 
 impl ConnectedServer {
-    pub fn serve<R>(&self, mut router: Router<R>) -> Result<(), ServerError>
-    where
-        R: IntoResponse,
-    {
+    pub fn serve(&self, mut router: Router) -> Result<(), ServerError> {
         println!(
             "Serving requests on port {}",
             self.connection.local_addr().unwrap()
         );
-        println!("Routes defined\n{:#?}", router.routes);
+        println!("Routes defined\n{:#?}", router.routes.keys());
 
         for stream in self.connection.incoming() {
             let mut st = stream.map_err(|err| ServerError::new(err))?;
@@ -77,9 +73,10 @@ impl ConnectedServer {
                 Err(err) => Response::new(StatusCode::INTERNAL_SERVER_ERROR, err.inner),
                 Ok(req) => match router.route(&req) {
                     Some(handler) => {
-                        println!("request: {:?}\nhandler:{:?}\n", req, handler);
-                        handler.0(req).build()
-                    },
+                   
+                        let response = handler.handle(&req);
+                        Response{code: StatusCode::OK , body: response}
+                    }
                     None => Response::new(
                         StatusCode::NOT_FOUND,
                         format!("resource {} not found", req.path),
@@ -87,7 +84,9 @@ impl ConnectedServer {
                 },
             };
             println!("{:?}", response);
-            response.respond(buffered_stream.get_mut()).map_err(|err| detector(err))?;
+            response
+                .respond(buffered_stream.get_mut())
+                .map_err(|err| detector(err))?;
         }
         Ok(())
     }

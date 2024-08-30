@@ -1,28 +1,19 @@
 use http::StatusCode;
 use httpdate::fmt_http_date;
+use std::fmt::Debug;
 use std::io::Write;
 use std::net::TcpStream;
 use std::time::SystemTime;
-use std::fmt::Debug;
-
-pub trait IntoResponse: Debug {
-    fn build(&self) -> Response;
-}
-
-impl IntoResponse for String {
-    fn build(&self) -> Response {
-        Response::new(StatusCode::OK, self.into())
-    }
-}
 
 
+#[derive(Debug)]
 pub struct ResponseBody {
-    content: String,
+    pub content: String,
 }
 #[derive(Debug)]
 pub struct Response {
-    code: StatusCode,
-    body: String,
+    pub(crate) code: StatusCode,
+    pub(crate) body: ResponseBody,
     // headers: Hesaders,
 }
 impl std::fmt::Display for Response {
@@ -33,9 +24,9 @@ impl std::fmt::Display for Response {
             self.code,
             fmt_http_date(SystemTime::now()),
             "ServerEdu",
-            self.body.len(),
-            "text/plain",
-            self.body
+            self.body.content.len(),
+            "application/json",
+            self.body.content
         )
     }
 }
@@ -49,7 +40,7 @@ impl Response {
         // headers_for_now.insert(ResponseHeaderType::Server, "EduServer".into());
         let response = Response {
             code: code,
-            body: body,
+            body: ResponseBody {content: body},
             // headers: Headers(headers_for_now),
         };
         return response;
