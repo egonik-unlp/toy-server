@@ -5,7 +5,6 @@ use std::io::Write;
 use std::net::TcpStream;
 use std::time::SystemTime;
 
-
 #[derive(Debug)]
 pub struct ResponseBody {
     pub content: String,
@@ -40,7 +39,7 @@ impl Response {
         // headers_for_now.insert(ResponseHeaderType::Server, "EduServer".into());
         let response = Response {
             code: code,
-            body: ResponseBody {content: body},
+            body: ResponseBody { content: body },
             // headers: Headers(headers_for_now),
         };
         return response;

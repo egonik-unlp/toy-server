@@ -7,7 +7,6 @@ use std::io::{BufReader, Error, Read, Write};
 use std::net::TcpListener;
 use std::time::Duration;
 
-
 pub enum ServerState {
     Connected(ConnectedServer),
     Disconnected,
@@ -73,9 +72,11 @@ impl ConnectedServer {
                 Err(err) => Response::new(StatusCode::INTERNAL_SERVER_ERROR, err.inner),
                 Ok(req) => match router.route(&req) {
                     Some(handler) => {
-                   
                         let response = handler.handle(&req);
-                        Response{code: StatusCode::OK , body: response}
+                        Response {
+                            code: StatusCode::OK,
+                            body: response,
+                        }
                     }
                     None => Response::new(
                         StatusCode::NOT_FOUND,

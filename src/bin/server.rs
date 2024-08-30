@@ -9,12 +9,11 @@ struct OuterHashmap(HashMap<String, String>);
 
 impl Into<ResponseBody> for OuterHashmap {
     fn into(self) -> ResponseBody {
-        return ResponseBody{content: format!("{:#?}", self.0)};
+        return ResponseBody {
+            content: format!("{:#?}", self.0),
+        };
     }
 }
-
-
-
 
 fn some_kinda_handler(req: &Request) -> OuterHashmap {
     let mut hm = HashMap::new();
@@ -26,8 +25,8 @@ fn some_kinda_handler(req: &Request) -> OuterHashmap {
 fn main() -> Result<(), ServerError> {
     let router = Router::new()
         .handler("/".into(), base_handler)
-        .handler("/jsoncito".into(),  some_kinda_handler)
-    .handler("/pepa".into(), other_handler);
+        .handler("/jsoncito".into(), some_kinda_handler)
+        .handler("/pepa".into(), other_handler);
     let srv = Server::bind("0.0.0.0:3000")?;
     if let ServerState::Connected(server) = srv {
         server.serve(router)?

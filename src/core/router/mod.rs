@@ -8,7 +8,7 @@ use std::fmt::Debug;
 use super::response::ResponseBody;
 
 // type Handler<R: ToString + Sized + 'static> = fn(Request) -> R;
-pub struct Router{
+pub struct Router {
     pub(crate) routes: HashMap<String, Box<dyn Handler>>,
 }
 // #[derive(Debug)]
@@ -29,11 +29,12 @@ pub trait Handler {
     fn handle(&self, request: &Request) -> ResponseBody;
 }
 
-impl<F,R> Handler for F 
-where R: Into<ResponseBody>,
-F: Fn(&Request) -> R
+impl<F, R> Handler for F
+where
+    R: Into<ResponseBody>,
+    F: Fn(&Request) -> R,
 {
-    fn handle( &self, request: &Request) ->  ResponseBody {
+    fn handle(&self, request: &Request) -> ResponseBody {
         let resp_body = self(&request);
         return resp_body.into();
     }
@@ -41,22 +42,21 @@ F: Fn(&Request) -> R
 
 impl Into<ResponseBody> for String {
     fn into(self) -> ResponseBody {
-        return ResponseBody {content : self };
+        return ResponseBody { content: self };
     }
 }
-
 
 impl Router {
     pub(crate) fn route(&mut self, request: &Request) -> Option<&mut Box<dyn Handler>> {
         let path = &request.path;
-        return self.routes.get_mut(path)
+        return self.routes.get_mut(path);
     }
     pub fn new() -> Self {
         Router {
             routes: HashMap::<String, Box<dyn Handler>>::new(),
         }
     }
-    pub fn handler(mut self, path: String, route: impl Handler+ 'static ) -> Self {
+    pub fn handler(mut self, path: String, route: impl Handler + 'static) -> Self {
         self.routes.insert(path, Box::new(route));
         return self;
     }
