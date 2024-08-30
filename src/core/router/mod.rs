@@ -1,6 +1,6 @@
 use http::{request, StatusCode};
 
-use crate::core::request::Request;
+use crate::core::request::{Request, RequestError};
 use crate::Response;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -49,10 +49,13 @@ impl Into<ResponseBody> for String {
 impl Router {
     pub(crate) fn route(&mut self, request: &Request) -> Option<&mut Box<dyn Handler>> {
         let path = &request.path;
+        let regular_path = todo!();
         if path.contains("<") {
-            
+            for char in path.chars() {
+                todo!();
+            }
         }
-        let route = self.routes.get_mut(path).ok_or_else(|_| RequestError {inner : "No handler for path {}", r});
+        let route = self.routes.get_mut(path).ok_or_else(|| RequestError {inner : format!("No handler for path {}", request.path)});
         return Ok;
     }
     pub fn new() -> Self {

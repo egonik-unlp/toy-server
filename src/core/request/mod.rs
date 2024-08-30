@@ -20,7 +20,11 @@ pub struct Request {
     pub path: String,
     version: String,
     pub(crate) headers: Headers,
+    metadata : Option<QueryParams>
 }
+
+type QueryParams = Vec<String>;
+
 #[derive(Debug)]
 pub struct ConnectionError {
     inner: String,
