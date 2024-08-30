@@ -21,7 +21,7 @@ pub mod handlers {
 
     use super::{Handler, Request};
     pub fn get(handler: impl Handler) -> Response {
-        return Response::new(StatusCode::OK, "a".to_owned());
+        return Response::new(StatusCode::OK, "a".to_owned(), "text/plain".into());
     }
 }
 
@@ -42,7 +42,7 @@ where
 
 impl Into<ResponseBody> for String {
     fn into(self) -> ResponseBody {
-        return ResponseBody { content: self };
+        return ResponseBody { content: self , content_type: "text/plain".into()};
     }
 }
 

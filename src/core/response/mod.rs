@@ -8,6 +8,7 @@ use std::time::SystemTime;
 #[derive(Debug)]
 pub struct ResponseBody {
     pub content: String,
+    pub content_type: String, 
 }
 #[derive(Debug)]
 pub struct Response {
@@ -15,6 +16,9 @@ pub struct Response {
     pub(crate) body: ResponseBody,
     // headers: Hesaders,
 }
+
+
+
 impl std::fmt::Display for Response {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -24,7 +28,7 @@ impl std::fmt::Display for Response {
             fmt_http_date(SystemTime::now()),
             "ServerEdu",
             self.body.content.len(),
-            "text/plain",
+            self.body.content_type,
             self.body.content
         )
     }
@@ -32,14 +36,17 @@ impl std::fmt::Display for Response {
 
 impl Response {
     pub fn respond(&self, stream: &mut TcpStream) -> Result<(), std::io::Error> {
+        
+
+
         return write!(stream, "{}", self);
     }
-    pub fn new(code: StatusCode, body: String) -> Self {
+    pub fn new(code: StatusCode, body: String, content_type: String) -> Self {
         // let mut headers_for_now = HashMap::new();
         // headers_for_now.insert(ResponseHeaderType::Server, "EduServer".into());
         let response = Response {
             code: code,
-            body: ResponseBody { content: body },
+            body: ResponseBody { content: body, content_type: content_type},
             // headers: Headers(headers_for_now),
         };
         return response;

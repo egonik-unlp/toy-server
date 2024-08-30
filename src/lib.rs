@@ -15,6 +15,6 @@ pub fn base_handler(_request: &Request) -> String {
 }
 
 pub fn other_handler(_request: &Request) -> String {
-    let rsp = Response::new(StatusCode::OK, "HELLOOOO".into());
+    let rsp = Response::new(StatusCode::OK, "HELLOOOO".into(), "text/plain".into());
     return format!("{}", rsp);
 }
