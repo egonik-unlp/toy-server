@@ -31,10 +31,10 @@ pub trait Handler {
 
 impl<F,R> Handler for F 
 where R: Into<ResponseBody>,
-F: Fn(Request) -> R + Debug
+F: Fn(&Request) -> R
 {
     fn handle( &self, request: &Request) ->  ResponseBody {
-        let resp_body = self(request.clone());
+        let resp_body = self(&request);
         return resp_body.into();
     }
 }
