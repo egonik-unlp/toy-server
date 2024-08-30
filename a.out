@@ -1,0 +1,50 @@
+Serving requests on port 0.0.0.0:3000
+Routes defined
+{
+    "/jsoncito": Handler(
+        0x0000562b8a6a99c0,
+    ),
+    "/": Handler(
+        0x0000562b8a6b97a0,
+    ),
+}
+
+request: Request { method: "GET", path: "/", version: "HTTP/1.1", headers: {"Accept-Encoding": ["gzip, deflate, br"], "User-Agent": ["PostmanRuntime/7.41.2"], "Connection": ["keep-alive"], "Accept": ["*/*"], "Postman-Token": ["95439c2c-df07-4735-9035-19eca787893b"], "Host": ["localhost:3000"]} }
+handler:Handler(0x562b8a6b97a0)
+
+Response { code: 200, body: "HOLA" }
+
+request: Request { method: "GET", path: "/", version: "HTTP/1.1", headers: {"Host": ["localhost:3000"], "Connection": ["keep-alive"], "Accept": ["*/*"], "User-Agent": ["PostmanRuntime/7.41.2"], "Postman-Token": ["be3be236-f57b-439c-a209-49a4b1d9038a"], "Accept-Encoding": ["gzip, deflate, br"]} }
+handler:Handler(0x562b8a6b97a0)
+
+Response { code: 200, body: "HOLA" }
+
+request: Request { method: "GET", path: "/", version: "HTTP/1.1", headers: {"Postman-Token": ["d67842bb-9f52-4b14-9121-a1b21ecabc8f"], "Accept-Encoding": ["gzip, deflate, br"], "Host": ["localhost:3000"], "User-Agent": ["PostmanRuntime/7.41.2"], "Accept": ["*/*"], "Connection": ["keep-alive"]} }
+handler:Handler(0x562b8a6b97a0)
+
+Response { code: 200, body: "HOLA" }
+
+request: Request { method: "GET", path: "/", version: "HTTP/1.1", headers: {"Accept-Encoding": ["gzip, deflate, br"], "Connection": ["keep-alive"], "Host": ["localhost:3000"], "User-Agent": ["PostmanRuntime/7.41.2"], "Accept": ["*/*"], "Postman-Token": ["9a774044-8bf5-4722-ab87-40f418c3c8e7"]} }
+handler:Handler(0x562b8a6b97a0)
+
+Response { code: 200, body: "HOLA" }
+
+request: Request { method: "GET", path: "/", version: "HTTP/1.1", headers: {"Accept": ["*/*"], "Host": ["localhost:3000"], "Accept-Encoding": ["gzip, deflate, br"], "Postman-Token": ["9b1a2884-2493-4fc1-8386-e82f7e2d7b7a"], "User-Agent": ["PostmanRuntime/7.41.2"], "Connection": ["keep-alive"]} }
+handler:Handler(0x562b8a6b97a0)
+
+Response { code: 200, body: "HOLA" }
+
+request: Request { method: "GET", path: "/jsoncito", version: "HTTP/1.1", headers: {"Upgrade-Insecure-Requests": ["1"], "User-Agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"], "Sec-Fetch-Mode": ["navigate"], "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"], "Sec-Fetch-Dest": ["document"], "Host": ["localhost:3000"], "sec-ch-ua-platform": ["\"Linux\""], "Cache-Control": ["max-age=0"], "sec-ch-ua-mobile": ["?0"], "sec-ch-ua": ["\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\""], "Accept-Language": ["es-AR,es;q=0.9,en-US;q=0.8,en;q=0.7,es-419;q=0.6"], "Connection": ["keep-alive"], "Cookie": ["ajs_anonymous_id=e595c157-4011-4f5b-982d-85355b3072ad; username-localhost-8888=\"2|1:0|10:1722968281|23:username-localhost-8888|204:eyJ1c2VybmFtZSI6ICI5ZGQxOGE4NzM4NGI0MDA0ODBhOTFkMGRlMDhhNTQ0YyIsICJuYW1lIjogIkFub255bW91cyBIYXJwYWx5a2UiLCAiZGlzcGxheV9uYW1lIjogIkFub255bW91cyBIYXJwYWx5a2UiLCAiaW5pdGlhbHMiOiAiQUgiLCAiY29sb3IiOiBudWxsfQ==|48ef1d11eaba5f339d93436ed6e90812ce51306e8b4a5842019f400e3eebf77e\"; _xsrf=2|afd5d48a|b6ed7eadedbc936a5e26d7e0be6b74e1|1722968281; username-localhost-8889=2|1:0|10:1722972355|23:username-localhost-8889|196:eyJ1c2VybmFtZSI6ICIyN2FlNTRjOTljZWU0ZGYyYTY0ZmIwZjMwMjU1ZmNmYSIsICJuYW1lIjogIkFub255bW91cyBFdXBvcmllIiwgImRpc3BsYXlfbmFtZSI6ICJBbm9ueW1vdXMgRXVwb3JpZSIsICJpbml0aWFscyI6ICJBRSIsICJjb2xvciI6IG51bGx9|08656dc615cdffced62cb458f32720a12e9b553946d45f55351ba724a7d2ddb6; username-localhost-8880=\"2|1:0|10:1724416990|23:username-localhost-8880|200:eyJ1c2VybmFtZSI6ICIxZDg4OGU0ZTUzMjI0OTZhOTZmYzBlYzQ5MDdlNmEzNyIsICJuYW1lIjogIkFub255bW91cyBBbWFsdGhlYSIsICJkaXNwbGF5X25hbWUiOiAiQW5vbnltb3VzIEFtYWx0aGVhIiwgImluaXRpYWxzIjogIkFBIiwgImNvbG9yIjogbnVsbH0=|b55cb93385b7c4e351ad75de346135ad52f151ae7dc7386e5c261909ef2efd1e\""], "Sec-Fetch-Site": ["none"], "Accept-Encoding": ["gzip, deflate, br, zstd"], "Sec-Fetch-User": ["?1"]} }
+handler:Handler(0x562b8a6a99c0)
+
+Response { code: 200, body: "{\n    \"chau\": \"chau\",\n    \"hola\": \"hola\",\n}" }
+
+request: Request { method: "GET", path: "/jsoncito", version: "HTTP/1.1", headers: {"Cache-Control": ["max-age=0"], "sec-ch-ua-mobile": ["?0"], "Accept-Language": ["es-AR,es;q=0.9,en-US;q=0.8,en;q=0.7,es-419;q=0.6"], "Host": ["localhost:3000"], "sec-ch-ua": ["\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\""], "User-Agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"], "Accept-Encoding": ["gzip, deflate, br, zstd"], "Sec-Fetch-Dest": ["document"], "Sec-Fetch-User": ["?1"], "Connection": ["keep-alive"], "Sec-Fetch-Mode": ["navigate"], "Upgrade-Insecure-Requests": ["1"], "Cookie": ["ajs_anonymous_id=e595c157-4011-4f5b-982d-85355b3072ad; username-localhost-8888=\"2|1:0|10:1722968281|23:username-localhost-8888|204:eyJ1c2VybmFtZSI6ICI5ZGQxOGE4NzM4NGI0MDA0ODBhOTFkMGRlMDhhNTQ0YyIsICJuYW1lIjogIkFub255bW91cyBIYXJwYWx5a2UiLCAiZGlzcGxheV9uYW1lIjogIkFub255bW91cyBIYXJwYWx5a2UiLCAiaW5pdGlhbHMiOiAiQUgiLCAiY29sb3IiOiBudWxsfQ==|48ef1d11eaba5f339d93436ed6e90812ce51306e8b4a5842019f400e3eebf77e\"; _xsrf=2|afd5d48a|b6ed7eadedbc936a5e26d7e0be6b74e1|1722968281; username-localhost-8889=2|1:0|10:1722972355|23:username-localhost-8889|196:eyJ1c2VybmFtZSI6ICIyN2FlNTRjOTljZWU0ZGYyYTY0ZmIwZjMwMjU1ZmNmYSIsICJuYW1lIjogIkFub255bW91cyBFdXBvcmllIiwgImRpc3BsYXlfbmFtZSI6ICJBbm9ueW1vdXMgRXVwb3JpZSIsICJpbml0aWFscyI6ICJBRSIsICJjb2xvciI6IG51bGx9|08656dc615cdffced62cb458f32720a12e9b553946d45f55351ba724a7d2ddb6; username-localhost-8880=\"2|1:0|10:1724416990|23:username-localhost-8880|200:eyJ1c2VybmFtZSI6ICIxZDg4OGU0ZTUzMjI0OTZhOTZmYzBlYzQ5MDdlNmEzNyIsICJuYW1lIjogIkFub255bW91cyBBbWFsdGhlYSIsICJkaXNwbGF5X25hbWUiOiAiQW5vbnltb3VzIEFtYWx0aGVhIiwgImluaXRpYWxzIjogIkFBIiwgImNvbG9yIjogbnVsbH0=|b55cb93385b7c4e351ad75de346135ad52f151ae7dc7386e5c261909ef2efd1e\""], "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"], "sec-ch-ua-platform": ["\"Linux\""], "Sec-Fetch-Site": ["none"]} }
+handler:Handler(0x562b8a6a99c0)
+
+Response { code: 200, body: "{\n    \"chau\": \"chau\",\n    \"hola\": \"hola\",\n}" }
+
+request: Request { method: "GET", path: "/", version: "HTTP/1.1", headers: {"Host": ["localhost:3000"], "sec-ch-ua-platform": ["\"Linux\""], "sec-ch-ua": ["\"Google Chrome\";v=\"125\", \"Chromium\";v=\"125\", \"Not.A/Brand\";v=\"24\""], "Connection": ["keep-alive"], "User-Agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"], "Sec-Fetch-User": ["?1"], "sec-ch-ua-mobile": ["?0"], "Sec-Fetch-Mode": ["navigate"], "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"], "Sec-Fetch-Site": ["none"], "Sec-Fetch-Dest": ["document"], "Cookie": ["ajs_anonymous_id=e595c157-4011-4f5b-982d-85355b3072ad; username-localhost-8888=\"2|1:0|10:1722968281|23:username-localhost-8888|204:eyJ1c2VybmFtZSI6ICI5ZGQxOGE4NzM4NGI0MDA0ODBhOTFkMGRlMDhhNTQ0YyIsICJuYW1lIjogIkFub255bW91cyBIYXJwYWx5a2UiLCAiZGlzcGxheV9uYW1lIjogIkFub255bW91cyBIYXJwYWx5a2UiLCAiaW5pdGlhbHMiOiAiQUgiLCAiY29sb3IiOiBudWxsfQ==|48ef1d11eaba5f339d93436ed6e90812ce51306e8b4a5842019f400e3eebf77e\"; _xsrf=2|afd5d48a|b6ed7eadedbc936a5e26d7e0be6b74e1|1722968281; username-localhost-8889=2|1:0|10:1722972355|23:username-localhost-8889|196:eyJ1c2VybmFtZSI6ICIyN2FlNTRjOTljZWU0ZGYyYTY0ZmIwZjMwMjU1ZmNmYSIsICJuYW1lIjogIkFub255bW91cyBFdXBvcmllIiwgImRpc3BsYXlfbmFtZSI6ICJBbm9ueW1vdXMgRXVwb3JpZSIsICJpbml0aWFscyI6ICJBRSIsICJjb2xvciI6IG51bGx9|08656dc615cdffced62cb458f32720a12e9b553946d45f55351ba724a7d2ddb6; username-localhost-8880=\"2|1:0|10:1724416990|23:username-localhost-8880|200:eyJ1c2VybmFtZSI6ICIxZDg4OGU0ZTUzMjI0OTZhOTZmYzBlYzQ5MDdlNmEzNyIsICJuYW1lIjogIkFub255bW91cyBBbWFsdGhlYSIsICJkaXNwbGF5X25hbWUiOiAiQW5vbnltb3VzIEFtYWx0aGVhIiwgImluaXRpYWxzIjogIkFBIiwgImNvbG9yIjogbnVsbH0=|b55cb93385b7c4e351ad75de346135ad52f151ae7dc7386e5c261909ef2efd1e\""], "Upgrade-Insecure-Requests": ["1"], "Accept-Encoding": ["gzip, deflate, br, zstd"], "Accept-Language": ["es-AR,es;q=0.9,en-US;q=0.8,en;q=0.7,es-419;q=0.6"]} }
+handler:Handler(0x562b8a6b97a0)
+
+Response { code: 200, body: "HOLA" }

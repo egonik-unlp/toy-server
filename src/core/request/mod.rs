@@ -17,9 +17,9 @@ enum RequestHeaderType {
 #[derive(Debug, Clone)]
 pub struct Request {
     pub method: String,
-    pub(crate) path: String,
+    pub path: String,
     version: String,
-    pub(crate) headers: Headers
+    pub headers: Headers,
 }
 #[derive(Debug)]
 pub struct ConnectionError {
