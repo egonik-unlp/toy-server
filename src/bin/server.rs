@@ -23,7 +23,10 @@ fn some_kinda_handler(req: &Request) -> OuterHashmap {
     return OuterHashmap(hm);
 }
 
-fn main() -> Result<(), ServerError> {
+
+
+#[tokio::main]
+async fn main() -> Result<(), ServerError> {
     let address = match std::env::args().nth(1)  {
         Some(port) => {
             let _ = port.parse::<i32>().map_err(|_| std::io::Error::new(std::io::ErrorKind::InvalidData, "Ivalid port"));
@@ -43,7 +46,7 @@ fn main() -> Result<(), ServerError> {
         .handler("/pepa".into(), other_handler);
     let srv = Server::bind(&address)?;
     if let ServerState::Connected(server) = srv {
-        server.serve(router)?
+        server.serve(router).await?
     }
     Ok(())
 }
