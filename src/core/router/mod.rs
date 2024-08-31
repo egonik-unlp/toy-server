@@ -4,12 +4,13 @@ use crate::core::request::Request;
 use crate::Response;
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::sync::Arc;
 
 use super::response::ResponseBody;
 
 // type Handler<R: ToString + Sized + 'static> = fn(Request) -> R;
 pub struct Router {
-    pub(crate) routes: HashMap<String, Box<dyn Handler>>,
+    pub(crate) routes: HashMap<String, Box<dyn Handler + Send>>,
 }
 // #[derive(Debug)]
 // pub struct Handler(pub fn(Request) -> Box<dyn IntoResponse>);
@@ -42,25 +43,24 @@ where
 
 impl Into<ResponseBody> for String {
     fn into(self) -> ResponseBody {
-        return ResponseBody { content: self , content_type: "text/plain".into()};
+        return ResponseBody {
+            content: self,
+            content_type: "text/plain".into(),
+        };
     }
 }
 
 impl Router {
-    pub(crate) fn route(&mut self, request: &Request) -> Option<&mut Box<dyn Handler>> {
+    pub(crate) fn route(&mut self, request: &Request) -> Option<&mut Box<dyn Handler + Send>> {
         let path = &request.path;
-        if path.contains("<") {
-            
-        }
-        let route = self.routes.get_mut(path).ok_or_else(|_| RequestError {inner : "No handler for path {}", r});
-        return Ok;
+        return self.routes.get_mut(path);
     }
     pub fn new() -> Self {
         Router {
-            routes: HashMap::<String, Box<dyn Handler>>::new(),
+            routes: HashMap::<String, Box<dyn Handler + Send>>::new(),
         }
     }
-    pub fn handler(mut self, path: String, route: impl Handler + 'static) -> Self {
+    pub fn handler(mut self, path: String, route: impl Handler + 'static + Send) -> Self {
         self.routes.insert(path, Box::new(route));
         return self;
     }

@@ -56,6 +56,7 @@ fn detector(err: Error) -> ServerError {
 }
 
 impl ConnectedServer {
+    #[cfg(feature = "st")]
     pub fn serve(&self, mut router: Router) -> Result<(), ServerError> {
         println!(
             "Serving requests on address {}",
@@ -69,7 +70,11 @@ impl ConnectedServer {
                 .map_err(|err| ServerError::new(err))?;
             let mut buffered_stream = BufReader::new(st);
             let response = match Request::new(&mut buffered_stream) {
-                Err(err) => Response::new(StatusCode::INTERNAL_SERVER_ERROR, err.inner, "text/plain".into()),
+                Err(err) => Response::new(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    err.inner,
+                    "text/plain".into(),
+                ),
                 Ok(req) => match router.route(&req) {
                     Some(handler) => {
                         let response = handler.handle(&req);
@@ -81,7 +86,7 @@ impl ConnectedServer {
                     None => Response::new(
                         StatusCode::NOT_FOUND,
                         format!("resource {} not found", req.path),
-                        "text/plain".into()
+                        "text/plain".into(),
                     ),
                 },
             };
@@ -91,5 +96,59 @@ impl ConnectedServer {
                 .map_err(|err| detector(err))?;
         }
         Ok(())
+    }
+
+    #[cfg(feature = "multithreaded")]
+    pub async fn serve(&self, mut router: Router) -> Result<(), ServerError> {
+        use std::sync::Arc;
+        println!(
+            "Serving requests on address {}\nMulti-threaded runtime",
+            self.connection.local_addr().unwrap()
+        );
+        let router = Arc::new(router);
+        println!("Routes defined\n{:#?}", router.routes.keys());
+        let mut tasks = vec![];
+        for stream in self.connection.incoming() {
+            let router = Arc::clone(&router);
+            let task: tokio::task::JoinHandle<Result<(), ServerError>> = tokio::spawn(async move {
+                let mut st = stream.map_err(|err| ServerError::new(err))?;
+                st.set_read_timeout(Some(Duration::from_millis(500)))
+                    .map_err(|err| ServerError::new(err))?;
+                let mut buffered_stream = BufReader::new(st);
+                let response = match Request::new(&mut buffered_stream) {
+                    Err(err) => Response::new(
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        err.inner,
+                        "text/plain".into(),
+                    ),
+                    Ok(req) => match router.route(&req) {
+                        Some(handler) => {
+                            let response = handler.handle(&req);
+                            Response {
+                                code: StatusCode::OK,
+                                body: response,
+                            }
+                        }
+                        None => Response::new(
+                            StatusCode::NOT_FOUND,
+                            format!("resource {} not found", req.path),
+                            "text/plain".into(),
+                        ),
+                    },
+                };
+                println!("{:?}", response);
+                response
+                    .respond(buffered_stream.get_mut())
+                    .map_err(|err| detector(err))?;
+                return Ok(());
+            }); // single task
+            tasks.push(task);
+        } // task loop
+        println!("do i ever get here");
+        for task in tasks {
+            task.await;
+        }
+
+        return Ok(());
     }
 }
