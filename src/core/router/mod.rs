@@ -5,6 +5,8 @@ use crate::core::request::Request;
 use crate::Response;
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::future::Future;
+use std::process::Output;
 use std::sync::Arc;
 
 use super::response::ResponseBody;
@@ -28,28 +30,33 @@ pub mod handlers {
 }
 
 pub trait Handler:  {
-    fn handle(&self, request: &Request) -> ResponseBody;
+   async fn handle(&self, request: &Request) -> ResponseBody;
 }
 
-impl<F, R> Handler for F
+impl<F, R, C> Handler for F
 where
-    R: Into<ResponseBody>,
-    F: Fn(&Request) -> R,
+    C: Future<Output = R> + Sized,
+    R: Into<ResponseBody> ,
+    F: Fn(&Request) -> C ,
 {
-    fn handle(&self, request: &Request) -> ResponseBody {
-        let resp_body = self(&request);
+    async fn handle(&self, request: &Request) -> ResponseBody {
+        let resp_body = self(&request).await;
         return resp_body.into();
     }
 }
 
-impl Into<ResponseBody> for String {
-    fn into(self) -> ResponseBody {
+
+impl From<String> for ResponseBody {
+    fn from(value: String) -> Self {
         return ResponseBody {
-            content: self,
-            content_type: "text/plain".into(),
+            content: value,
+            content_type: "text/plain".into()
         };
     }
 }
+
+
+
 
 impl Router {
     pub(crate) fn route(&mut self, request: &Request) -> Option<&mut Arc<RwLock<dyn Handler + Send + Sync>>> {

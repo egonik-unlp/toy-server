@@ -40,9 +40,6 @@ impl Request {
     pub(crate) fn new(stream: &mut BufReader<TcpStream>) -> Result<Self, RequestError> {
         let (method, path, version) = parse_request_arguments(stream)
             .map_err(|err| RequestError::new(format!("Error processing headers: {}", err)))?;
-        let mut buf_remainig = Vec::with_capacity(4096);
-        stream.read(&mut buf_remainig).unwrap();
-        println!("{}", String::from_utf8(buf_remainig).unwrap());
         let headers = parse_headers(stream)
             .map_err(|err| RequestError::new(format!("Error processing headers: {:?}", err)))?;
         return Ok(Request {

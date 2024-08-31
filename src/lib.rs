@@ -1,4 +1,3 @@
-// use core::response::IntoResponse;
 
 use http::status::StatusCode;
 mod core;
@@ -9,7 +8,7 @@ pub use crate::core::{
     server::{Server, ServerError, ServerState},
 };
 
-pub fn base_handler(_request: &Request) -> String {
+ pub async  fn base_handler(_request: &Request) -> String {
     // Response::new(StatusCode::OK, format!("{:#?}", request))
     return "HOLA".into();
 }

@@ -106,10 +106,12 @@ impl ConnectedServer {
             "Serving requests on address {}\nMulti-threaded runtime",
             self.connection.local_addr().unwrap()
         );
+        let mut request_id = 0;
         let mut router = Arc::new(RwLock::new(router));
         println!("Routes defined\n{:#?}", router.read().await.routes.keys());
         let mut tasks = vec![];
         for stream in self.connection.incoming() {
+            request_id += 1;
             let mut router = Arc::clone(&router);
             let task: tokio::task::JoinHandle<Result<(), ServerError>> = tokio::spawn(async move {
                 let mut st = stream.map_err(|err| ServerError::new(err))?;
@@ -137,7 +139,8 @@ impl ConnectedServer {
                         ),
                     },
                 };
-                println!("{:?}", response);
+                // println!("{:?}", response);
+                println!("request {} responding", request_id);
                 response
                     .respond(buffered_stream.get_mut())
                     .map_err(|err| detector(err))?;
@@ -147,7 +150,7 @@ impl ConnectedServer {
         } // task loop
         println!("do i ever get here");
         for task in tasks {
-            task.await;
+            task.await.unwrap();
         }
 
         return Ok(());
