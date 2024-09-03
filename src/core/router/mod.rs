@@ -1,3 +1,6 @@
+#![feature(async_fn_in_trait)]
+
+
 use http::{request, StatusCode};
 use tokio::sync::RwLock;
 
@@ -30,8 +33,10 @@ pub mod handlers {
 }
 
 pub trait Handler:  {
-   async fn handle(&self, request: &Request) -> ResponseBody;
+    async fn handle(&self, request: &Request) -> ResponseBody;
 }
+
+
 
 impl<F, R, C> Handler for F
 where
