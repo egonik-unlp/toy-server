@@ -126,7 +126,8 @@ impl ConnectedServer {
                     ),
                     Ok(req) => match router.borrow_mut().write().await.route(&req) {
                         Some(handler) => {
-                            let response = handler.read().await.handle(&req);
+                            let handler = handler.read().await;
+                            let response = handler.handle(&req).await;
                             Response {
                                 code: StatusCode::OK,
                                 body: response,

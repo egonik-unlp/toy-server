@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+async-trait = "0.1.82"
 http = "1.1.0"
 httpdate = "1.0.3"
 tokio = { version = "1.40.0", features = ["full", "rt-multi-thread"] }

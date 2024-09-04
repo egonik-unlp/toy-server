@@ -1,6 +1,5 @@
-#![feature(async_fn_in_trait)]
 
-
+use async_trait::async_trait;
 use http::{request, StatusCode};
 use tokio::sync::RwLock;
 
@@ -31,22 +30,23 @@ pub mod handlers {
         return Response::new(StatusCode::OK, "a".to_owned(), "text/plain".into());
     }
 }
-
+#[async_trait]
 pub trait Handler:  {
     async fn handle(&self, request: &Request) -> ResponseBody;
 }
 
 
-
+#[async_trait]
 impl<F, R, C> Handler for F
 where
-    C: Future<Output = R> + Sized,
-    R: Into<ResponseBody> ,
-    F: Fn(&Request) -> C ,
+    C: Future<Output = R> + Sized + Send,
+    R: Into<ResponseBody>,
+    F: Fn(&Request) -> C + Sync ,
 {
-    async fn handle(&self, request: &Request) -> ResponseBody {
-        let resp_body = self(&request).await;
-        return resp_body.into();
+     async fn handle(&self, request: &Request) -> ResponseBody {
+            let resp_body = self(&request).await;
+            return resp_body.into();
+
     }
 }
 
