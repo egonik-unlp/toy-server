@@ -22,11 +22,13 @@ def request(url: str, gap : float):
 			all_panics.append(e)
 		time.sleep(gap)
 	return failed, right
+def main():
+    for gap in all_gaps:
+	    failed, right = request(url, gap)
+	    faileds.append(failed)
+	    rights.append(right)
+        pd.DataFrame({"gap_seconds": all_gaps, "failed_attemts": faileds, "correctly_answered_requests" : rights}).to_csv("data.csv")
+    return None
 
-for gap in all_gaps:
-	failed, right = request(url, gap)
-	faileds.append(failed)
-	rights.append(right)
-
-pd.DataFrame({"gap_seconds": all_gaps, "failed_attemts": faileds, "correctly_answered_requests" : rights}).to_csv("data.csv")
-
+if __name__ == "__main__":
+    main()

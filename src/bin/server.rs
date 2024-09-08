@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use server::{
-    base_handler, other_handler, Request, ResponseBody, Router, Server, ServerError, ServerState,
+    base_handler, get, other_handler, Request, ResponseBody, Router, Server, ServerError,
+    ServerState,
 };
 #[derive(Debug)]
 struct OuterHashmap(HashMap<String, String>);
@@ -41,10 +42,9 @@ async fn main() -> Result<(), ServerError> {
             falopa.into()
         }
     };
-    let router = Router::new()
-        .handler("/".into(), base_handler)
-        .handler("/jsoncito".into(), some_kinda_handler)
-        .handler("/pepa".into(), other_handler);
+    let router = Router::new().handler("/".into(), get(base_handler));
+    // .handler("/jsoncito".into(), some_kinda_handler)
+    // .handler("/pepa".into(), other_handler);
     let srv = Server::bind(&address)?;
     if let ServerState::Connected(server) = srv {
         server.serve(router).await?

@@ -3,7 +3,7 @@ mod core;
 pub use crate::core::{
     request::Request,
     response::{Response, ResponseBody},
-    router::{handlers, Handler, Router},
+    router::{handler_wrapper::get, handlers, Handler, Router},
     server::{Server, ServerError, ServerState},
 };
 
